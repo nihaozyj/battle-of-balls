@@ -1,0 +1,19 @@
+{
+  "name": "battle-of-balls",
+  "uuid": "e5b5506d-c933-4cb6-9ec4-10dfb432bb1b",
+  "creator": {
+    "version": "3.8.0"
+  },
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/seedrandom": "^3.0.8"
+  }
+}
