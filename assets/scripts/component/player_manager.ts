@@ -132,11 +132,11 @@ export class PlayerManager extends Component {
         if (ball.mass > blockBalls[j].mass) {
           ball.mass += blockBalls[j].mass
           removeBall = blockBalls[j]
-          blockBalls[j].player.removeBall(blockBalls[j])
+          blockBalls[j].player.removeBall(blockBalls[j], ball.player.name)
         } else {
           blockBalls[j].mass += ball.mass
           removeBall = ball
-          ball.player.removeBall(ball)
+          ball.player.removeBall(ball, blockBalls[j].player.name)
         }
         const key = `${Math.floor(removeBall.position.x / blockSize)}-${Math.floor(removeBall.position.y / blockSize)}`
         if (blockMap.has(key)) {

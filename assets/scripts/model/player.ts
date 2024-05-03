@@ -2,7 +2,7 @@ import { Color, Node, TweenAction, Vec2, tween, v2, v3 } from "cc"
 import { calculateTargetPoint, getPolygonCenter, lcgRandom, randomColor } from "../util"
 import Ball from "./ball"
 import { EVENT_TYPE, TDirectionWheelUpdateParams, eventTarget } from "../runtime"
-import { mainSceneData } from "../runtime/main_scene_data"
+import { mainSceneData, uiCtrl } from "../runtime/main_scene_data"
 import { directionZero } from "../component/direction_wheel"
 import { sporeParams } from "../component/spore_manager"
 
@@ -55,24 +55,29 @@ class Player {
   }
 
   /** 球体被吃掉了，移除球体 */
-  removeBall(ball: Ball) {
+  removeBall(ball: Ball, name: string = '') {
     this.balls.splice(this.balls.indexOf(ball), 1)
     this.ballCache.push(ball)
     ball.node.removeFromParent()
     this.updateScore()
     if (this.balls.length === 0) {
       /** 玩家死亡 */
-      this.die()
+      this.die(name)
     }
   }
 
   /** 玩家死亡 */
-  die() {
+  die(name: string = '') {
     // 死亡逻辑 ......
-
-
-    // 复活并且初始化玩家的第一个球体
-    this.birth()
+    this.tdwp = directionZero
+    if (mainSceneData.player === this) {
+      uiCtrl.deathUI.show(name).then(() => {
+        this.birth()
+      })
+    } else {
+      // 复活并且初始化玩家的第一个球体
+      this.birth()
+    }
   }
 
   /** 销毁 */
@@ -148,9 +153,9 @@ class Player {
       newBall.updateRadiusAndSpeed()
       const len = Math.max(oldBall.radius * 2.3, 200)
       calculateTargetPoint(out, oldBall.targetDirection, len, oldBall.position)
-      oldBall.clampPosition(out)
+      newBall.clampPosition(out)
       newBall.setPosition(oldBall.position.x, oldBall.position.y)
-      tween(newBall.node).to(0.2, { position: v3(out.x, out.y) }).start()
+      tween(newBall.node).to(0.3, { position: v3(out.x, out.y) }).start()
     }
     return maxSplitCount > 0
   }
@@ -182,23 +187,25 @@ class Player {
   handleBallCollision() {
     const now = Date.now()
     this.balls.forEach((ball, index) => {
+      if (now - ball.lastSplitTime > mainSceneData.mergeTime) return
       for (let i = index + 1; i < this.balls.length; i++) {
-        if (now - ball.lastSplitTime > mainSceneData.mergeTime &&
-          now - this.balls[i].lastSplitTime > mainSceneData.mergeTime) return
-        // 允许球体合体时不允许重合
         if (now - this.balls[i].lastSplitTime > mainSceneData.mergeTime) continue
         // 球体未发生碰撞不处理重合
         if (!ball.collideWith(this.balls[i])) continue
         // 获取两球圆心连线的中心点
         getPolygonCenter(center, [ball, this.balls[i]])
+        // 获取碰撞深度
+        const depth = ball.radius + this.balls[i].radius - Vec2.distance(ball.position, this.balls[i].position)
+        // 设置两球的速度使其移动时不会抖动距离太大
         // 分别设置两球的方向，使其朝着和中心点相反的方向移动
-        Vec2.subtract(ball.direction, ball.position, center)
-        ball.direction.normalize()
-        Vec2.subtract(this.balls[i].direction, this.balls[i].position, center)
-        this.balls[i].direction.normalize()
+        const dir = Vec2.subtract(out, ball.position, center).normalize()
+        ball.direction.set(dir.x, dir.y)
+        dir.multiplyScalar(-1)
+        this.balls[i].direction.set(dir.x, dir.y)
       }
     })
   }
+
 
   /** 对满足合体要求的球体进行合体操作 */
   mergeBalls() {
@@ -209,7 +216,7 @@ class Player {
       for (let j = i + 1; j < this.balls.length; j++) {
         const condition_j = now - this.balls[j].lastSplitTime > mainSceneData.mergeTime
         // 只要有一个球体的分身时间满足条件，就可以进行合体操作
-        if (!(condition_i && condition_j)) continue
+        if (!(condition_i || condition_j)) continue
         // 获取球体间的距离
         if (!this.balls[i].isOverlapping(this.balls[j])) continue
 

@@ -49,4 +49,10 @@ export class AIPlayer extends Player {
     if (lcgRandom.next() < 0.5) return
     this.autoMove()
   }
+
+  getBall(): Ball {
+    const ball = super.getBall()
+    ball.drawArrow = false
+    return ball
+  }
 }

@@ -31,7 +31,7 @@ export class SporeManager extends Component {
 
   protected start(): void {
     eventTarget.on(EVENT_TYPE.PLAYER_THROW_BALL, this.generateSpore, this)
-    this.schedule(this.checkBallCollisions, 0.03)
+    this.schedule(this.checkBallCollisions, 0.0167)
   }
 
   protected onDestroy(): void {

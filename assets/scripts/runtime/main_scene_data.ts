@@ -1,6 +1,12 @@
 import { AudioClip, AudioSource, Node, SpriteAtlas, SpriteFrame, resources } from 'cc'
 import { EVENT_TYPE, eventTarget } from './event_manager'
 import Player from '../model/player'
+import { UiDieCtrl } from '../component/ui_die_ctrl'
+
+class UICtrl {
+  /** 死亡界面 */
+  deathUI: UiDieCtrl = null
+}
 
 /** main 游戏所需的数据 */
 class MainData {
@@ -109,5 +115,8 @@ class MainData {
 
 /** 游戏主场景所需的数据 */
 const mainSceneData = new MainData()
+/** UI 控制器 */
+const uiCtrl = new UICtrl()
 
-export { mainSceneData }
+
+export { mainSceneData, uiCtrl }

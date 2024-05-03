@@ -31,6 +31,8 @@ class Ball {
   player: Player = null
   /** 上次分身时间,通过 Date.now() 获取的毫秒数 */
   lastSplitTime: number = 0
+  /** 是否绘制方向箭头 */
+  drawArrow: boolean = false
   /** 标签节点 */
   private _label: Label = null
 
@@ -40,11 +42,12 @@ class Ball {
   }
 
   /** 创建一个球体节点，并添加必要的组件 */
-  static createBall(parent: Node, color: Color, player: Player) {
+  static createBall(parent: Node, color: Color, player: Player, drawArrow: boolean = true) {
     const ball = new Ball()
     ball.player = player
     ball.node = new Node('ball')
     ball.node.setParent(parent)
+    ball.drawArrow = drawArrow
     ball.transform = ball.node.addComponent(UITransform)
     ball.transform.setAnchorPoint(0.5, 0.5)
     ball.graphics = ball.node.addComponent(Graphics)
@@ -85,8 +88,10 @@ class Ball {
     this.graphics.clear()
     this.speed = Math.max(mainSceneData.maxSpeed - (mainSceneData.maxSpeed * this.mass / 5000), 15)
     // 绘制方向箭头
-    Vec2.multiplyScalar(out, this.targetDirection, this.radius)
-    this.graphics.circle(out.x, out.y, Math.max(this.radius * 0.1, 4))
+    if (this.drawArrow) {
+      Vec2.multiplyScalar(out, this.targetDirection, this.radius)
+      this.graphics.circle(out.x, out.y, Math.max(this.radius * 0.1, 4))
+    }
     // 绘制圆形球体
     this.graphics.circle(0, 0, this.radius)
     this.graphics.fill()
@@ -144,9 +149,9 @@ class Ball {
       this.updateRadiusAndSpeed()
       calculateTargetPoint(out, vs[i], this.radius, this.position)
       ball.setPosition(out.x, out.y)
-      calculateTargetPoint(out, vs[i], this.radius + ball.radius * 2, this.position)
+      calculateTargetPoint(out, vs[i], this.radius + 150, this.position)
       ball.clampPosition(out)
-      tween(ball.node).to(0.2, { position: v3(out.x, out.y) }).start()
+      tween(ball.node).to(0.3, { position: v3(out.x, out.y) }).start()
       balls.push(ball)
     }
     if (fsMess * count < this.mass - 10 /** mainSceneData.startScore */) {
@@ -172,7 +177,7 @@ class Ball {
     if (y < this.radius * 0.73) out.y = this.radius * 0.73
     if (x > mainSceneData.mapSize - this.radius * 0.73) out.x = mainSceneData.mapSize - this.radius * 0.73
     if (y > mainSceneData.mapSize - this.radius * 0.73) out.y = mainSceneData.mapSize - this.radius * 0.73
-    return out.set(x, y)
+    return out
   }
 }
 
