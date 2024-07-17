@@ -63,14 +63,10 @@ export class PlayerManager extends Component {
 
   /** 处理用户动作事件 */
   onPlayerAction(action: string): void {
-    if (action === '1') {
-      if (this.player.shoot()) {
-        mainSceneData.audioSourceThrust.playOneShot(mainSceneData.audioSourceThrust.clip, 1)
-      }
-    } else if (action === '2') {
-      if (this.player.split()) {
-        mainSceneData.audioSourceSplit.playOneShot(mainSceneData.audioSourceSplit.clip, 1)
-      }
+    if (action === '1' && this.player.shoot()) {
+      mainSceneData.audioSourceThrust.playOneShot(mainSceneData.audioSourceThrust.clip, 1)
+    } else if (action === '2' && this.player.split()) {
+      mainSceneData.audioSourceSplit.playOneShot(mainSceneData.audioSourceSplit.clip, 1)
     }
   }
 

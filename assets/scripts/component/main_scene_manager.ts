@@ -108,6 +108,7 @@ export class MainSceneManager extends Component {
 
       case KeyCode.KEY_W:
         this.isKeyDownW = true
+        this.onSplit
         // 每秒分身25次，这个速度够用了
         this.schedule(this.onSplit, 0.04)
         break

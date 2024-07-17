@@ -157,7 +157,7 @@ class Player {
       newBall.setPosition(oldBall.position.x, oldBall.position.y)
       tween(newBall.node).to(0.3, { position: v3(out.x, out.y) }).start()
     }
-    return maxSplitCount > 0
+    return maxSplitCount > 0 && this.balls.length > 0
   }
 
   /** 更新球体的方向 */
