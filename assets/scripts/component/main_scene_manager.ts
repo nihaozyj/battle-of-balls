@@ -23,7 +23,7 @@ export class MainSceneManager extends Component {
   playerList: PlayerModel[] = []
 
   private isKeyDownQ: boolean = false
-  private isKeyDownE: boolean = false
+  private isKeyDownW: boolean = false
   private sporeTimer = null
 
   start() {
@@ -97,14 +97,19 @@ export class MainSceneManager extends Component {
     switch (event.keyCode) {
       case KeyCode.KEY_Q:
         this.isKeyDownQ = true
-        eventTarget.emit(EVENT_TYPE.PLAYER_ACTION, '1')
+        this.onSpore()
         // 每秒吐25个孢子 1 / 25 === 0.04
         this.schedule(this.onSpore, 0.04)
         break
 
       case KeyCode.KEY_E:
-        this.isKeyDownE = true
-        eventTarget.emit(EVENT_TYPE.PLAYER_ACTION, '2')
+        this.onSplit()
+        break
+
+      case KeyCode.KEY_W:
+        this.isKeyDownW = true
+        // 每秒分身25次，这个速度够用了
+        this.schedule(this.onSplit, 0.04)
         break
 
       case KeyCode.SPACE:
@@ -122,20 +127,26 @@ export class MainSceneManager extends Component {
         this.unschedule(this.onSpore)
         break
 
-      case KeyCode.KEY_E:
-        this.isKeyDownE = false
+      case KeyCode.KEY_W:
+        this.isKeyDownW = false
+        // 取消分身
+        this.unschedule(this.onSplit)
         break
     }
   }
 
-  /** 玩家要求吐孢子 */
+  /** 玩家点击吐孢子 */
   onSpore() {
     eventTarget.emit(EVENT_TYPE.PLAYER_ACTION, '1')
   }
 
+  /** 玩家点击分身 */
+  onSplit() {
+    eventTarget.emit(EVENT_TYPE.PLAYER_ACTION, '2')
+  }
+
   /** 按钮点击事件的回调函数 */
   onButtonClick(e: EventTouch, active: string) {
-    // 发送开始游戏事件
     eventTarget.emit(EVENT_TYPE.PLAYER_ACTION, active)
   }
 

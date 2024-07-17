@@ -1,6 +1,5 @@
 import { _decorator, Component, Node } from 'cc'
 import { Acanthosphere } from '../model/acanthosphere'
-import { calculateBallRadius } from '../util'
 import { mainSceneData } from '../runtime/main_scene_data'
 import Ball from '../model/ball'
 const { ccclass } = _decorator

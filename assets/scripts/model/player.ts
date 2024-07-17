@@ -161,7 +161,7 @@ class Player {
   }
 
   /** 更新球体的方向 */
-  updateDirection() {
+  updateDirection(dt: number) {
     if (this.balls.length === 0) return
     // 假设固定的长度为 2000
     const _length = 2000 * this.tdwp.length
@@ -179,12 +179,12 @@ class Player {
     })
     if (this.balls.length > 1) {
       this.mergeBalls()
-      this.handleBallCollision()
+      this.handleBallCollision(dt)
     }
   }
 
   /** 处理球体重合的情况 */
-  handleBallCollision() {
+  handleBallCollision(dt: number) {
     const now = Date.now()
     this.balls.forEach((ball, index) => {
       if (now - ball.lastSplitTime > mainSceneData.mergeTime) return
@@ -195,8 +195,10 @@ class Player {
         // 获取两球圆心连线的中心点
         getPolygonCenter(center, [ball, this.balls[i]])
         // 获取碰撞深度
-        const depth = ball.radius + this.balls[i].radius - Vec2.distance(ball.position, this.balls[i].position)
+        const depth = ball.radius + this.balls[i].radius - Vec2.distance(ball.position, this.balls[i].position) / 2
         // 设置两球的速度使其移动时不会抖动距离太大
+        ball.speed = Math.min(ball.speed, depth / dt)
+        this.balls[i].speed = Math.min(this.balls[i].speed, depth / dt)
         // 分别设置两球的方向，使其朝着和中心点相反的方向移动
         const dir = Vec2.subtract(out, ball.position, center).normalize()
         ball.direction.set(dir.x, dir.y)
@@ -236,7 +238,7 @@ class Player {
 
   /** 每帧要做的事情 */
   update(dt: number) {
-    if (this.balls.length !== 0) this.updateDirection()
+    if (this.balls.length !== 0) this.updateDirection(dt)
     this.balls.forEach(ball => ball.update(dt))
     this.updateScore()
   }
