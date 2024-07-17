@@ -1,7 +1,7 @@
 import { AudioClip, AudioSource, Node, SpriteAtlas, SpriteFrame, resources } from 'cc'
-import { EVENT_TYPE, eventTarget } from './event_manager'
-import Player from '../model/player'
 import { UiDieCtrl } from '../component/ui_die_ctrl'
+import Player from '../model/player'
+import { EVENT_TYPE, eventTarget } from './event_manager'
 
 class UICtrl {
   /** 死亡界面 */

@@ -1,12 +1,12 @@
 import { _decorator, Color, Component, EventKeyboard, EventTouch, Input, input, KeyCode, Label, Layers, Layout, Node, Widget } from 'cc'
-import { mainSceneData } from '../runtime/main_scene_data'
 import PlayerModel from '../model/player'
 import { EVENT_TYPE, eventTarget } from '../runtime'
-import { CaidouManager } from './caidou_manager'
-import { PlayerManager } from './player_manager'
-import { directionZero } from './direction_wheel'
-import { SporeManager } from './spore_manager'
+import { mainSceneData } from '../runtime/main_scene_data'
 import { AcanthosphereManager } from './acanthosphere_manager'
+import { CaidouManager } from './caidou_manager'
+import { directionZero } from './direction_wheel'
+import { PlayerManager } from './player_manager'
+import { SporeManager } from './spore_manager'
 const { ccclass, property } = _decorator
 
 @ccclass('MainSceneManager')

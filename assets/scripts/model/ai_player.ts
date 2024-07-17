@@ -1,8 +1,8 @@
 import { Node, Vec2, v2 } from "cc"
-import Player from "./player"
 import { mainSceneData } from "../runtime/main_scene_data"
-import Ball from "./ball"
 import { lcgRandom } from "../util"
+import Ball from "./ball"
+import Player from "./player"
 
 const names = [
   '可恶得坏蛋', '小白兔爱吃糖', '优雅得熊猫', '稳重得大树', '美丽得蝴蝶', '可爱得小狗', '可怕得老虎', '无敌的小兔子', '猫咪爱吃鱼'

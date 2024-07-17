@@ -1,8 +1,8 @@
-import { Graphics, Node, Component, Sprite, v2, Rect, Vec2, Vec3, v3, Color } from "cc"
-import { mainSceneData } from "../runtime/main_scene_data"
-import { Caidou } from "../model/caidou"
-import { lcgRandom } from "../util"
+import { Color, Component, Graphics, Node, Vec3, v2, v3 } from "cc"
 import Ball from "../model/ball"
+import { Caidou } from "../model/caidou"
+import { mainSceneData } from "../runtime/main_scene_data"
+import { lcgRandom } from "../util"
 
 /** 管理彩豆的生成、销毁等 */
 export class CaidouManager extends Component {

@@ -1,7 +1,7 @@
 import { Color, Rect, Vec2, v2 } from "cc"
-import { lcgRandom } from "./lcg_random"
-import { mainSceneData } from "../runtime/main_scene_data"
 import Ball from "../model/ball"
+import { mainSceneData } from "../runtime/main_scene_data"
+import { lcgRandom } from "./lcg_random"
 
 /** 执行一个函数并且返回一个结果,用来执行匿名函数 */
 const executeFunc = (fun: Function) => fun()
@@ -92,8 +92,6 @@ const getPolygonCenter: (out: Vec2, balls: Ball[]) => void = executeFunc(functio
 })
 
 export {
-  calculateTargetPoint, randomColor,
-  calculateBallRadius, executeFunc,
-  lcgRandom, executeCallback, getCircleRectCenter,
-  getPolygonCenter
+  calculateBallRadius, calculateTargetPoint, executeCallback, executeFunc, getCircleRectCenter,
+  getPolygonCenter, lcgRandom, randomColor
 }

@@ -1,10 +1,10 @@
-import { Color, Node, TweenAction, Vec2, tween, v2, v3 } from "cc"
-import { calculateTargetPoint, getPolygonCenter, lcgRandom, randomColor } from "../util"
-import Ball from "./ball"
-import { EVENT_TYPE, TDirectionWheelUpdateParams, eventTarget } from "../runtime"
-import { mainSceneData, uiCtrl } from "../runtime/main_scene_data"
+import { Color, Node, Vec2, tween, v2, v3 } from "cc"
 import { directionZero } from "../component/direction_wheel"
 import { sporeParams } from "../component/spore_manager"
+import { EVENT_TYPE, TDirectionWheelUpdateParams, eventTarget } from "../runtime"
+import { mainSceneData, uiCtrl } from "../runtime/main_scene_data"
+import { calculateTargetPoint, getPolygonCenter, lcgRandom, randomColor } from "../util"
+import Ball from "./ball"
 
 /** 二维向量的中间变量，储存向量计算的结果 */
 const out = v2()

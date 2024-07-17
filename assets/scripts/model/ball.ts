@@ -1,8 +1,8 @@
 import { Color, Graphics, Label, Node, UITransform, Vec2, tween, v2, v3 } from "cc"
 import { mainSceneData } from "../runtime/main_scene_data"
 import { calculateBallRadius, calculateTargetPoint } from "../util"
-import Player from "./player"
 import { Acanthosphere } from "./acanthosphere"
+import Player from "./player"
 
 /** 储存二维向量的临时变量 */
 const out = v2()

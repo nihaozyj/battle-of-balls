@@ -1,7 +1,7 @@
 import { _decorator, Component, Node } from 'cc'
 import { Acanthosphere } from '../model/acanthosphere'
-import { mainSceneData } from '../runtime/main_scene_data'
 import Ball from '../model/ball'
+import { mainSceneData } from '../runtime/main_scene_data'
 const { ccclass } = _decorator
 
 @ccclass('AcanthosphereManager')

@@ -1,4 +1,4 @@
-import { Component, EventTarget, Vec2 } from "cc"
+import { EventTarget, Vec2 } from "cc"
 
 /** 事件目标实例 */
 const eventTarget = new EventTarget()
@@ -25,4 +25,5 @@ enum EVENT_TYPE {
 
 export type { TDirectionWheelUpdateParams }
 
-export { eventTarget, EVENT_TYPE }
+export { EVENT_TYPE, eventTarget }
+

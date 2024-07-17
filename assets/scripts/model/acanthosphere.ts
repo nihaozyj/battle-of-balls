@@ -1,6 +1,6 @@
 import { Node, Sprite, UITransform, Vec2, v2 } from 'cc'
-import { calculateBallRadius, lcgRandom } from '../util'
 import { mainSceneData } from '../runtime/main_scene_data'
+import { calculateBallRadius, lcgRandom } from '../util'
 import Ball from './ball'
 
 /** 缓存池 */

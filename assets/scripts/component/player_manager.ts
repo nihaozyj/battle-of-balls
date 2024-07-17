@@ -1,10 +1,10 @@
-import { _decorator, Camera, Component, instantiate, Label, Node, Rect, tween, v2, Vec2, view } from 'cc'
-import Player from '../model/player'
-import { calculateBallRadius, executeCallback, getCircleRectCenter } from '../util'
+import { _decorator, Camera, Component, Label, Node, Rect, v2, view } from 'cc'
 import { AIPlayer } from '../model/ai_player'
+import Ball from '../model/ball'
+import Player from '../model/player'
 import { EVENT_TYPE, eventTarget, TDirectionWheelUpdateParams } from '../runtime'
 import { mainSceneData } from '../runtime/main_scene_data'
-import Ball from '../model/ball'
+import { executeCallback, getCircleRectCenter } from '../util'
 const { ccclass } = _decorator
 
 @ccclass('PlayerManager')

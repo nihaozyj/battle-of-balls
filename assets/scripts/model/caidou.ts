@@ -1,4 +1,4 @@
-import { Node, Sprite, UITransform, Vec3 } from "cc"
+import { Node, Sprite, UITransform } from "cc"
 import { mainSceneData } from "../runtime/main_scene_data"
 import { lcgRandom } from "../util"
 

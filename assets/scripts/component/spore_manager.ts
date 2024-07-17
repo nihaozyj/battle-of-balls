@@ -1,8 +1,8 @@
 import { _decorator, Color, Component, Node, v2 } from 'cc'
+import Ball from '../model/ball'
 import { Spore } from '../model/spore'
 import { EVENT_TYPE, eventTarget } from '../runtime'
 import { mainSceneData } from '../runtime/main_scene_data'
-import Ball from '../model/ball'
 const { ccclass } = _decorator
 
 /** 吐孢子所需的基本且必须的参数，由于js是单线程的，因此可以直接复用该参数 */
