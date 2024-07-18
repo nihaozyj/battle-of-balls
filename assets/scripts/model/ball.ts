@@ -1,4 +1,4 @@
-import { Color, Graphics, Label, Node, UITransform, Vec2, tween, v2, v3 } from "cc"
+import { Color, Graphics, Label, Node, Tween, UITransform, Vec2, tween, v2, v3 } from "cc"
 import { mainSceneData } from "../runtime/main_scene_data"
 import { calculateBallRadius, calculateTargetPoint } from "../util"
 import { Acanthosphere } from "./acanthosphere"
@@ -35,6 +35,8 @@ class Ball {
   drawArrow: boolean = false
   /** 标签节点 */
   private _label: Label = null
+
+  private _tween: Tween<number> = null
 
   setDirection(direction: { x: number, y: number }) {
     this.direction.set(direction.x, direction.y)
@@ -84,6 +86,7 @@ class Ball {
   /** 更新球的大小和速度 */
   updateRadiusAndSpeed() {
     this.radius = calculateBallRadius(this.mass)
+
     this.transform.setContentSize(this.radius * 2, this.radius * 2)
     this.graphics.clear()
     this.speed = Math.max(mainSceneData.maxSpeed - (mainSceneData.maxSpeed * this.mass / 5000), 15)
