@@ -48,8 +48,12 @@ class MainData {
   players: Player[] = []
   /** 当前玩家 */
   player: Player = null
+  /** 当前玩家名称 */
+  playerName: string = ''
   /** 球体节点池 */
   private _ballPool: Node[] = []
+  /** 单局游戏时间（秒） */
+  readonly gameTime = 60 * 6
 
   /** 背景音乐播放组件 */
   audioSourceBackground: AudioSource = new AudioSource()
@@ -78,11 +82,10 @@ class MainData {
     return node
   }
 
-  init() {
-    Promise.all([
+  async init() {
+    await Promise.all([
       new Promise((resolve) => resources.load('sprite/cion', SpriteAtlas, (err, frames) => {
         this.caidouFrames = frames.getSpriteFrames()
-        eventTarget.emit(EVENT_TYPE.DATA_LOAD_COMPLETE)
         return resolve(null)
       })),
       new Promise((resolve) => resources.load('sprite/ci/spriteFrame', SpriteFrame, (err, frames) => {
@@ -94,7 +97,6 @@ class MainData {
         this.audioSourceBackground.playOnAwake = true
         this.audioSourceBackground.loop = true
         this.audioSourceBackground.volume = 0.5
-        this.audioSourceBackground.play()
         return resolve(null)
       })),
       new Promise((resolve) => resources.load('audio/吞噬', AudioClip, (err, audio) => {
@@ -108,8 +110,11 @@ class MainData {
       new Promise((resolve) => resources.load('audio/吐球', AudioClip, (err, audio) => {
         this.audioSourceThrust.clip = audio
         return resolve(null)
-      })),
-    ]).then(() => eventTarget.emit(EVENT_TYPE.DATA_LOAD_COMPLETE))
+      }))
+    ])
+
+    // 如果没用排行榜数据则初始化排行榜数据
+    localStorage.leaderboard || (localStorage.leaderboard = '[]')
   }
 }
 

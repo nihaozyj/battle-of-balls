@@ -42,7 +42,7 @@ export class PlayerManager extends Component {
     this.cameraInitDistance.set(width / 2 - mainSceneData.minRadius, height / 2 - mainSceneData.minRadius)
     // 初始玩家自身，而后添加AI
     mainSceneData.players = this.players
-    mainSceneData.player = this.player = new Player('威猛的小脑斧', this.node)
+    mainSceneData.player = this.player = new Player(mainSceneData.playerName, this.node)
     this.players.push(this.player)
     this.player.setScoreUpdateCallback(score => this.scoreLabel.string = `分数：${score}`)
     // 添加 30 个AI
@@ -70,7 +70,7 @@ export class PlayerManager extends Component {
     }
   }
 
-  /** 
+  /**
    * 设置方向和速度
    * 当玩家只存在一个球体是，方向不变
    * 当玩家存在多个球体时，取外切矩形的中心点为0方向，该方向向外延申固定值的比例为100，根据长度在该直线上取一个点为最终方向

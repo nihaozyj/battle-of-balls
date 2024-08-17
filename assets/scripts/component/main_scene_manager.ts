@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, EventKeyboard, EventTouch, Input, input, KeyCode, Label, Layers, Layout, Node, Widget } from 'cc'
+import { _decorator, Color, Component, director, EventKeyboard, EventTouch, Input, input, KeyCode, Label, Layers, Layout, Node, Widget } from 'cc'
 import PlayerModel from '../model/player'
 import { EVENT_TYPE, eventTarget } from '../runtime'
 import { mainSceneData } from '../runtime/main_scene_data'
@@ -12,6 +12,7 @@ const { ccclass, property } = _decorator
 @ccclass('MainSceneManager')
 export class MainSceneManager extends Component {
   @property(Node) rankingListNode: Node = null
+  @property(Node) timeNode: Node = null
 
   /** 存放球体的节点 */
   ballNode: Node = null
@@ -21,14 +22,12 @@ export class MainSceneManager extends Component {
   sporeNode: Node = null
   /** 玩家列表 */
   playerList: PlayerModel[] = []
+  /** 本局游戏剩余时间 */
+  time: number = 0
 
-  private isKeyDownQ: boolean = false
-  private isKeyDownW: boolean = false
-  private sporeTimer = null
+  timeLabel: Label = null
 
   start() {
-    mainSceneData.init()
-
     // 添加彩豆节点
     this.coinNode = new Node('coinNode')
     this.coinNode.setParent(this.node)
@@ -38,13 +37,32 @@ export class MainSceneManager extends Component {
     // 添加球体节点
     this.ballNode = new Node('ballNode')
     this.ballNode.setParent(this.node)
-    // 初始化彩豆地图
-    eventTarget.once(EVENT_TYPE.DATA_LOAD_COMPLETE, this.init, this)
     /** 监听按键事件 */
     input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this)
     input.on(Input.EventType.KEY_UP, this.onKeyUp, this)
 
+    this.time = Date.now()
+
     this.initRankingListNode()
+    this.init()
+
+    this.timeLabel = this.timeNode.getComponent(Label)
+    this.schedule(this.updateTime, 0.5)
+  }
+
+  updateTime() {
+    const remainingTime = mainSceneData.gameTime - Math.floor((Date.now() - this.time) / 1000)
+    this.timeLabel.string = `${Math.floor(remainingTime / 60)} : ${Math.floor(remainingTime % 60)}`
+    // 游戏结束
+    if (remainingTime <= 0) this.gameOver()
+  }
+
+  gameOver() {
+    localStorage.lastScore = mainSceneData.player.score
+    const leaderboard = JSON.parse(localStorage.leaderboard) as any[]
+    leaderboard.push({ name: mainSceneData.player.name, score: mainSceneData.player.score, time: Date.now() })
+    localStorage.leaderboard = JSON.stringify(leaderboard)
+    director.loadScene('start')
   }
 
   /** 初始化排行榜 */
@@ -64,7 +82,6 @@ export class MainSceneManager extends Component {
 
   updateRankingList() {
     if (mainSceneData.players.length === 0) return
-    const widget = this.rankingListNode.getComponent(Widget)
     mainSceneData.players.sort((a, b) => b.score - a.score)
     const nodes = this.rankingListNode.children
     for (let i = 0; i < 10; i++) {
@@ -79,8 +96,6 @@ export class MainSceneManager extends Component {
       label.string = `${i + 1}. ${player.name} ${player.score}`
       this.rankingListNode.addChild(labelNode)
     }
-    widget.top = 20
-    widget.right = 20
   }
 
   protected update(dt: number): void {
@@ -96,7 +111,6 @@ export class MainSceneManager extends Component {
   onKeyDown(event: EventKeyboard) {
     switch (event.keyCode) {
       case KeyCode.KEY_Q:
-        this.isKeyDownQ = true
         this.onSpore()
         // 每秒吐25个孢子 1 / 25 === 0.04
         this.schedule(this.onSpore, 0.04)
@@ -107,7 +121,6 @@ export class MainSceneManager extends Component {
         break
 
       case KeyCode.KEY_W:
-        this.isKeyDownW = true
         this.onSplit
         // 每秒分身25次，这个速度够用了
         this.schedule(this.onSplit, 0.04)
@@ -123,13 +136,11 @@ export class MainSceneManager extends Component {
   onKeyUp(event: EventKeyboard) {
     switch (event.keyCode) {
       case KeyCode.KEY_Q:
-        this.isKeyDownQ = false
         // 取消吐孢子
         this.unschedule(this.onSpore)
         break
 
       case KeyCode.KEY_W:
-        this.isKeyDownW = false
         // 取消分身
         this.unschedule(this.onSplit)
         break
