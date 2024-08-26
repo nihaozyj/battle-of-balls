@@ -1,5 +1,6 @@
 import { _decorator, Component, EventTouch, Node, Toggle } from 'cc'
 import { mainSceneData } from '../runtime/main_scene_data'
+import { util_stopNodeEventBubbling } from '../util/event'
 const { ccclass, property } = _decorator
 
 @ccclass('StartUiSettingCtrl')
@@ -9,10 +10,7 @@ export class StartUiSettingCtrl extends Component {
   @property(Node) closeBtn: Node = null;
 
   protected start(): void {
-    // 阻止事件冒泡
-    this.node.on(Node.EventType.TOUCH_START, this.onTouchStart, this)
-    this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this)
-    this.node.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this)
+    util_stopNodeEventBubbling(this.node)
 
     this.closeBtn.on(Node.EventType.TOUCH_END, this.onCloseBtnClick, this)
     this.toggle.on(Node.EventType.TOUCH_END, this.onToggleClick, this)
@@ -21,18 +19,6 @@ export class StartUiSettingCtrl extends Component {
       if (!localStorage.isPlayBGAudio) return false
       return this.toggle.getComponent(Toggle).isChecked = localStorage.isPlayBGAudio === 'true' ? true : false
     })()
-  }
-
-  private onTouchStart(event: EventTouch): void {
-    event.propagationStopped = true
-  }
-
-  private onTouchEnd(event: EventTouch): void {
-    event.propagationStopped = true
-  }
-
-  private onTouchCancel(event: EventTouch): void {
-    event.propagationStopped = true
   }
 
   private onCloseBtnClick(event: EventTouch): void {

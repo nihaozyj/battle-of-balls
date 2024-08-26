@@ -82,6 +82,7 @@ export class PlayerManager extends Component {
   /** 处理碰撞 */
   onCollision(): void {
     const balls: Ball[] = [].concat(...this.players.map(player => player.balls))
+    let isRoundScored = false
     // 块大小
     const blockSize = 100
     // 对其按照坐标进行划分区块，每个区块大小为100
@@ -124,15 +125,18 @@ export class PlayerManager extends Component {
         // 此处判断大球和小球的质量是否有1.2倍的差距，如果差距太小则不进行碰撞检测,因为此时不会出现吞噬的情况
         if (!(Math.abs(ball.mass - blockBalls[j].mass) > minMass * 0.2 && ball.isOverlapping(blockBalls[j]))) continue
         let removeBall: Ball = null
+
         // 两球已经成功碰撞，此时大球吞噬小球
         if (ball.mass > blockBalls[j].mass) {
           ball.mass += blockBalls[j].mass
           removeBall = blockBalls[j]
           blockBalls[j].player.removeBall(blockBalls[j], ball.player.name)
+          ball.player === this.player && (isRoundScored = true)
         } else {
           blockBalls[j].mass += ball.mass
           removeBall = ball
           ball.player.removeBall(ball, blockBalls[j].player.name)
+          blockBalls[j].player === this.player && (isRoundScored = true)
         }
         const key = `${Math.floor(removeBall.position.x / blockSize)}-${Math.floor(removeBall.position.y / blockSize)}`
         if (blockMap.has(key)) {
@@ -144,6 +148,7 @@ export class PlayerManager extends Component {
         if (removeBall === ball) break
       }
     }
+    isRoundScored && mainSceneData.audioSourceEffect.play()
   }
 
   /** 球体每秒掉分 */

@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, director, EventKeyboard, EventTouch, Input, input, KeyCode, Label, Layers, Layout, Node, Widget } from 'cc'
+import { _decorator, Color, Component, director, EventKeyboard, EventTouch, Input, input, KeyCode, Label, Layers, Layout, Node } from 'cc'
 import PlayerModel from '../model/player'
 import { EVENT_TYPE, eventTarget } from '../runtime'
 import { mainSceneData } from '../runtime/main_scene_data'
@@ -13,6 +13,8 @@ const { ccclass, property } = _decorator
 export class MainSceneManager extends Component {
   @property(Node) rankingListNode: Node = null
   @property(Node) timeNode: Node = null
+  @property(Node) settineNode: Node = null
+  @property(Node) settingWindowNode: Node = null
 
   /** 存放球体的节点 */
   ballNode: Node = null
@@ -48,6 +50,8 @@ export class MainSceneManager extends Component {
 
     this.timeLabel = this.timeNode.getComponent(Label)
     this.schedule(this.updateTime, 0.5)
+
+    this.settineNode.on(Node.EventType.TOUCH_END, (e: EventTouch) => this.settingWindowNode.active = true)
   }
 
   updateTime() {
