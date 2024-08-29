@@ -44,16 +44,17 @@ class MainData {
   readonly beanScore = 10
   /** 球体分身后自动合体所需要的时间单位毫秒 */
   readonly mergeTime = 30 * 1000
-  /** 所有玩家 */
-  players: Player[] = []
-  /** 当前玩家 */
-  player: Player = null
-  /** 当前玩家名称 */
-  playerName: string = ''
   /** 球体节点池 */
   private _ballPool: Node[] = []
   /** 单局游戏时间（秒） */
   readonly gameTime = 60 * 6
+
+
+  /** 所有玩家 */
+  players: Player[] = []
+  /** 当前玩家 */
+  player: Player = null
+
 
   /** 背景音乐播放组件 */
   audioSourceBackground: AudioSource = new AudioSource()
@@ -112,9 +113,6 @@ class MainData {
         return resolve(null)
       }))
     ])
-
-    // 如果没用排行榜数据则初始化排行榜数据
-    localStorage.leaderboard || (localStorage.leaderboard = '[]')
   }
 }
 

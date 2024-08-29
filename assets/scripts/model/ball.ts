@@ -27,12 +27,16 @@ class Ball {
   targetDirection: Vec2 = v2()
   /** 当前球得位置 */
   _position: Vec2 = v2()
+  /** 球分身操作后预计出现的位置 */
+  splitPosition: Vec2 = v2()
   /** 球体所属玩家 */
   player: Player = null
   /** 上次分身时间,通过 Date.now() 获取的毫秒数 */
   lastSplitTime: number = 0
   /** 是否绘制方向箭头 */
   drawArrow: boolean = false
+  /** 是否允许移动 */
+  isMovable: boolean = true
   /** 标签节点 */
   private _label: Label = null
 
@@ -100,20 +104,30 @@ class Ball {
     this.graphics.fill()
   }
 
+  /** 更新球的位置 */
+  updatePosition(dt: number) {
+    const ratio = Math.max(this.player.tdwp.length, 0.2)
+    calculateTargetPoint(out, this.direction, this.speed * ratio * dt, this.position)
+    const { x, y } = out
+    const reset = this.radius * 0.73
+    if (x < reset) out.x = reset
+    if (y < reset) out.y = reset
+    if (x > mainSceneData.mapSize - reset) out.x = mainSceneData.mapSize - reset
+    if (y > mainSceneData.mapSize - reset) out.y = mainSceneData.mapSize - reset
+    this.node.setPosition(out.x, out.y)
+  }
+
   /** 每帧执行的更新逻辑 */
   update(dt: number) {
     if (this.speed <= 0) return
-    this.updateRadiusAndSpeed()
     this._label.fontSize = Math.max(this.radius * 0.08, 22)
     this._label.lineHeight = this._label.fontSize * 1.5
     this._label.string = this.player.name
-    calculateTargetPoint(out, this.direction, this.speed * this.player.tdwp.length * dt, this.position)
-    const { x, y } = out
-    if (x < this.radius * 0.73) out.x = this.radius * 0.73
-    if (y < this.radius * 0.73) out.y = this.radius * 0.73
-    if (x > mainSceneData.mapSize - this.radius * 0.73) out.x = mainSceneData.mapSize - this.radius * 0.73
-    if (y > mainSceneData.mapSize - this.radius * 0.73) out.y = mainSceneData.mapSize - this.radius * 0.73
-    this.node.setPosition(out.x, out.y)
+
+    if (this.isMovable) {
+      this.updateRadiusAndSpeed()
+      this.updatePosition(dt)
+    }
   }
 
   /** 两球之间的距离 */
@@ -134,9 +148,7 @@ class Ball {
   /** 球体分裂, 返回值代表分裂后是否原球体是否消失 */
   split(count: number, vs: Vec2[], mess: number): boolean {
     this.mass += mess
-
     if (count === 0) return false
-
     let fsMess = Math.floor(this.mass / count)
     if (fsMess > Acanthosphere.maxSplitMass) fsMess = Acanthosphere.maxSplitMass
     const out = v2()

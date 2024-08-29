@@ -7,6 +7,7 @@ import { CaidouManager } from './caidou_manager'
 import { directionZero } from './direction_wheel'
 import { PlayerManager } from './player_manager'
 import { SporeManager } from './spore_manager'
+import { db } from '../runtime/db'
 const { ccclass, property } = _decorator
 
 @ccclass('MainSceneManager')
@@ -62,10 +63,7 @@ export class MainSceneManager extends Component {
   }
 
   gameOver() {
-    localStorage.lastScore = mainSceneData.player.score
-    const leaderboard = JSON.parse(localStorage.leaderboard) as any[]
-    leaderboard.push({ name: mainSceneData.player.name, score: mainSceneData.player.score, time: Date.now() })
-    localStorage.leaderboard = JSON.stringify(leaderboard)
+    db.updateScoreboard(mainSceneData.player.score)
     director.loadScene('start')
   }
 

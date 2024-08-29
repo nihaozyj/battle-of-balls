@@ -55,7 +55,7 @@
       "y": 0,
       "z": 0
     },
-    "autoReleaseAssets": true,
+    "autoReleaseAssets": false,
     "_globals": {
       "__id__": 107
     },
@@ -282,7 +282,6 @@
     "__type__": "b03317R7E1LuYDxpKAoPu3s",
     "_name": "",
     "_objFlags": 0,
-    "__editorExtras__": {},
     "node": {
       "__id__": 2
     },
@@ -2805,7 +2804,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "0b769b70-4b81-4a64-b41a-c5e431853141@68552",
+      "__uuid__": "0b769b70-4b81-4a64-b41a-c5e431853141@eb416",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 1,
@@ -2865,7 +2864,7 @@
       "a": 255
     },
     "_normalSprite": {
-      "__uuid__": "0b769b70-4b81-4a64-b41a-c5e431853141@68552",
+      "__uuid__": "0b769b70-4b81-4a64-b41a-c5e431853141@eb416",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_hoverSprite": null,

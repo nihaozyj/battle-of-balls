@@ -80,11 +80,6 @@ class Player {
     }
   }
 
-  /** 销毁 */
-  destroy() {
-
-  }
-
   /** 重新统计分数 */
   updateScore() {
     let score = 0
@@ -104,8 +99,10 @@ class Player {
 
   /** 初始化第一个球体 */
   birth() {
-    const ball = this.getBall()
-    ball.setPosition(lcgRandom.randomInt(200, mainSceneData.mapSize - 200), lcgRandom.randomInt(200, mainSceneData.mapSize - 200))
+    this.getBall().setPosition(
+      lcgRandom.randomInt(200, mainSceneData.mapSize - 200),
+      lcgRandom.randomInt(200, mainSceneData.mapSize - 200)
+    )
   }
 
   /** 吐球 */
@@ -155,7 +152,10 @@ class Player {
       calculateTargetPoint(out, oldBall.targetDirection, len, oldBall.position)
       newBall.clampPosition(out)
       newBall.setPosition(oldBall.position.x, oldBall.position.y)
-      tween(newBall.node).to(0.3, { position: v3(out.x, out.y) }).start()
+      // 球体分身期间不可移动
+      newBall.isMovable = false
+      newBall.splitPosition.set(out)
+      tween(newBall.node).to(0.3, { position: v3(out.x, out.y) }).call(() => newBall.isMovable = true).start()
     }
     return maxSplitCount > 0 && this.balls.length > 0
   }
@@ -186,24 +186,26 @@ class Player {
   /** 处理球体重合的情况 */
   handleBallCollision(dt: number) {
     const now = Date.now()
-    this.balls.forEach((ball, index) => {
-      if (now - ball.lastSplitTime > mainSceneData.mergeTime) return
+    // 过滤出距离上一次分身时间超过 mergeTime 的球体
+    const balls = this.balls.filter(ball => now - ball.lastSplitTime < mainSceneData.mergeTime && ball.isMovable)
+    // 使这些球体在短时间内分开
+    balls.forEach((ball1, index) => {
       for (let i = index + 1; i < this.balls.length; i++) {
-        if (now - this.balls[i].lastSplitTime > mainSceneData.mergeTime) continue
+        const ball2 = balls[i]
         // 球体未发生碰撞不处理重合
-        if (!ball.collideWith(this.balls[i])) continue
+        if (!ball1.collideWith(ball2)) continue
         // 获取两球圆心连线的中心点
-        getPolygonCenter(center, [ball, this.balls[i]])
+        getPolygonCenter(center, [ball1, ball2])
         // 获取碰撞深度
-        const depth = ball.radius + this.balls[i].radius - Vec2.distance(ball.position, this.balls[i].position) / 2
+        const depth = ball1.radius + ball2.radius - Vec2.distance(ball1.position, ball2.position) / 2
         // 设置两球的速度使其移动时不会抖动距离太大
-        ball.speed = Math.min(ball.speed, depth / dt)
-        this.balls[i].speed = Math.min(this.balls[i].speed, depth / dt)
+        ball1.speed = Math.min(ball1.speed, depth / dt)
+        ball2.speed = Math.min(ball2.speed, depth / dt)
         // 分别设置两球的方向，使其朝着和中心点相反的方向移动
-        const dir = Vec2.subtract(out, ball.position, center).normalize()
-        ball.direction.set(dir.x, dir.y)
+        const dir = Vec2.subtract(out, ball1.position, center).normalize()
+        ball1.direction.set(dir.x, dir.y)
         dir.multiplyScalar(-1)
-        this.balls[i].direction.set(dir.x, dir.y)
+        ball2.direction.set(dir.x, dir.y)
       }
     })
   }

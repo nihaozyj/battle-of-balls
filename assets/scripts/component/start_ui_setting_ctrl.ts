@@ -1,6 +1,7 @@
 import { _decorator, Component, EventTouch, Node, Toggle } from 'cc'
 import { mainSceneData } from '../runtime/main_scene_data'
 import { util_stopNodeEventBubbling } from '../util/event'
+import { db } from '../runtime/db'
 const { ccclass, property } = _decorator
 
 @ccclass('StartUiSettingCtrl')
@@ -11,30 +12,20 @@ export class StartUiSettingCtrl extends Component {
 
   protected start(): void {
     util_stopNodeEventBubbling(this.node)
+    util_stopNodeEventBubbling(this.closeBtn)
+    util_stopNodeEventBubbling(this.toggle)
 
     this.closeBtn.on(Node.EventType.TOUCH_END, this.onCloseBtnClick, this)
     this.toggle.on(Node.EventType.TOUCH_END, this.onToggleClick, this)
-
-    this.toggle.getComponent(Toggle).isChecked = (() => {
-      if (!localStorage.isPlayBGAudio) return false
-      return this.toggle.getComponent(Toggle).isChecked = localStorage.isPlayBGAudio === 'true' ? true : false
-    })()
+    this.toggle.getComponent(Toggle).isChecked = db.isPlayBGAudio
   }
 
   private onCloseBtnClick(event: EventTouch): void {
-    event.propagationStopped = true
     this.node.active = false
   }
 
   private onToggleClick(event: EventTouch): void {
-    event.propagationStopped = true
-    this.scheduleOnce(() => {
-      if (this.toggle.getComponent(Toggle).isChecked) {
-        mainSceneData.audioSourceBackground.play()
-      } else {
-        mainSceneData.audioSourceBackground.stop()
-      }
-      localStorage.isPlayBGAudio = this.toggle.getComponent(Toggle).isChecked
-    })
+    db.isPlayBGAudio = !this.toggle.getComponent(Toggle).isChecked
+    db.isPlayBGAudio ? mainSceneData.audioSourceBackground.play() : mainSceneData.audioSourceBackground.stop()
   }
 }

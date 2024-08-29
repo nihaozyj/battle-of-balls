@@ -5,6 +5,7 @@ import Player from '../model/player'
 import { EVENT_TYPE, eventTarget, TDirectionWheelUpdateParams } from '../runtime'
 import { mainSceneData } from '../runtime/main_scene_data'
 import { executeCallback, getCircleRectCenter } from '../util'
+import { db } from '../runtime/db'
 const { ccclass } = _decorator
 
 @ccclass('PlayerManager')
@@ -42,14 +43,15 @@ export class PlayerManager extends Component {
     this.cameraInitDistance.set(width / 2 - mainSceneData.minRadius, height / 2 - mainSceneData.minRadius)
     // 初始玩家自身，而后添加AI
     mainSceneData.players = this.players
-    mainSceneData.player = this.player = new Player(mainSceneData.playerName, this.node)
+    mainSceneData.player = this.player = new Player(db.playerName, this.node)
+    console.log('玩家自身：', this.player)
     this.players.push(this.player)
     this.player.setScoreUpdateCallback(score => this.scoreLabel.string = `分数：${score}`)
     // 添加 30 个AI
     executeCallback(30, index => {
       this.players.push(new AIPlayer(this.node))
     })
-    eventTarget.on(EVENT_TYPE.DIRECTION_WHEEL_UPDATE, this.setDirectionAndSpeed.bind(this))
+    eventTarget.on(EVENT_TYPE.DIRECTION_WHEEL_UPDATE, this.setDirectionAndSpeed, this)
     /** 所以玩家的球体每秒掉分 */
     this.schedule(this.attenuation.bind(this), 1)
     /** 监听玩家的动作 */
@@ -57,7 +59,7 @@ export class PlayerManager extends Component {
   }
 
   protected onDestroy(): void {
-    eventTarget.on(EVENT_TYPE.DIRECTION_WHEEL_UPDATE, this.setDirectionAndSpeed.bind(this))
+    eventTarget.off(EVENT_TYPE.DIRECTION_WHEEL_UPDATE, this.setDirectionAndSpeed, this)
     eventTarget.off(EVENT_TYPE.PLAYER_ACTION, this.onPlayerAction, this)
   }
 
