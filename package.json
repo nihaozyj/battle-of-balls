@@ -12,8 +12,4 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "@types/seedrandom": "^3.0.8"
-  }
 }
