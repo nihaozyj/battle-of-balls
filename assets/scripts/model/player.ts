@@ -3,7 +3,7 @@ import { directionZero } from "../component/direction_wheel"
 import { sporeParams } from "../component/spore_manager"
 import { EVENT_TYPE, TDirectionWheelUpdateParams, eventTarget } from "../runtime"
 import { mainSceneData, uiCtrl } from "../runtime/main_scene_data"
-import { calculateTargetPoint, getPolygonCenter, lcgRandom, randomColor } from "../util"
+import { calculateTargetPoint, getPolygonCenter, lcgRandom, randomColor, util_getCircleCenter } from "../util"
 import Ball from "./ball"
 
 /** 二维向量的中间变量，储存向量计算的结果 */
@@ -59,9 +59,9 @@ class Player {
     this.balls.splice(this.balls.indexOf(ball), 1)
     this.ballCache.push(ball)
     ball.node.removeFromParent()
-    this.updateScore()
-    if (this.balls.length === 0) {
-      /** 玩家死亡 */
+
+    // 玩家死亡
+    if (!this.balls.length) {
       this.die(name)
     }
   }
@@ -133,12 +133,11 @@ class Player {
   split(): boolean {
     // 筛选出可以分身的球体
     const balls: Ball[] = this.balls.filter(ball => ball.mass >= mainSceneData.minScoreForSplit)
-    // 如果分身后球体数量大于 maxSplitCount 则需要排序，优先使用大球分身
-    if (balls.length + this.balls.length > mainSceneData.maxSplitCount)
-      balls.sort((a, b) => b.mass - a.mass)
-    const maxSplitCount = mainSceneData.maxSplitCount - this.balls.length
+    // 优先使用大球分身
+    balls.sort((a, b) => b.mass - a.mass)
+    const splitCount = mainSceneData.maxSplitCount - this.balls.length
     // 开始分身
-    for (let i = 0; i < balls.length && i < maxSplitCount; i++) {
+    for (let i = 0; i < balls.length && i < splitCount; i++) {
       const oldBall = balls[i]
       const newBall = this.getBall()
       const mass = Math.floor(oldBall.mass / 2)
@@ -149,7 +148,8 @@ class Player {
       oldBall.updateRadiusAndSpeed()
       newBall.updateRadiusAndSpeed()
       const len = Math.max(oldBall.radius * 2.3, 200)
-      calculateTargetPoint(out, oldBall.targetDirection, len, oldBall.position)
+      const startPos = oldBall.isMovable ? oldBall.position : oldBall.splitPosition
+      calculateTargetPoint(out, oldBall.targetDirection, len, startPos)
       newBall.clampPosition(out)
       newBall.setPosition(oldBall.position.x, oldBall.position.y)
       // 球体分身期间不可移动
@@ -157,7 +157,7 @@ class Player {
       newBall.splitPosition.set(out)
       tween(newBall.node).to(0.3, { position: v3(out.x, out.y) }).call(() => newBall.isMovable = true).start()
     }
-    return maxSplitCount > 0 && this.balls.length > 0
+    return splitCount > 0 && this.balls.length > 0
   }
 
   /** 更新球体的方向 */
@@ -178,7 +178,7 @@ class Player {
       ball.setDirection(temp.subtract(v2(ball.position.x, ball.position.y)).normalize())
     })
     if (this.balls.length > 1) {
-      this.mergeBalls()
+      this._mergeBalls()
       this.handleBallCollision(dt)
     }
   }
@@ -189,52 +189,55 @@ class Player {
     // 过滤出距离上一次分身时间超过 mergeTime 的球体
     const balls = this.balls.filter(ball => now - ball.lastSplitTime < mainSceneData.mergeTime && ball.isMovable)
     // 使这些球体在短时间内分开
-    balls.forEach((ball1, index) => {
-      for (let i = index + 1; i < this.balls.length; i++) {
-        const ball2 = balls[i]
-        // 球体未发生碰撞不处理重合
-        if (!ball1.collideWith(ball2)) continue
-        // 获取两球圆心连线的中心点
-        getPolygonCenter(center, [ball1, ball2])
+    for (let i = 0; i < balls.length; i++) {
+      const ball1 = balls[i]
+      for (let j = i + 1; j < balls.length; j++) {
+        const ball2 = balls[j]
         // 获取碰撞深度
-        const depth = ball1.radius + ball2.radius - Vec2.distance(ball1.position, ball2.position) / 2
-        // 设置两球的速度使其移动时不会抖动距离太大
-        ball1.speed = Math.min(ball1.speed, depth / dt)
-        ball2.speed = Math.min(ball2.speed, depth / dt)
+        const depth = (ball1.radius + ball2.radius - ball1.distanceTo(ball2)) / 2
+        // 没有碰撞
+        if (depth < 0) continue
+        // 获取两球圆心连线的中心点
+        center.set(util_getCircleCenter(ball1.position, ball2.position))
+        // 设置两球的速度
+        ball1.speed = ball2.speed = depth
         // 分别设置两球的方向，使其朝着和中心点相反的方向移动
-        const dir = Vec2.subtract(out, ball1.position, center).normalize()
-        ball1.direction.set(dir.x, dir.y)
-        dir.multiplyScalar(-1)
-        ball2.direction.set(dir.x, dir.y)
+        const dir = center.normalize()
+        ball2.direction.set(dir)
+        ball1.direction.set(dir.multiplyScalar(-1))
+        break
       }
-    })
+    }
   }
 
 
-  /** 对满足合体要求的球体进行合体操作 */
-  mergeBalls() {
+  /** 对满足合体要求的球体进行合并操作 */
+  private _mergeBalls() {
     const now = Date.now()
-    for (let i = 0; i < this.balls.length; i++) {
-      const condition_i = now - this.balls[i].lastSplitTime > mainSceneData.mergeTime
-      if (!condition_i) continue
-      for (let j = i + 1; j < this.balls.length; j++) {
-        const condition_j = now - this.balls[j].lastSplitTime > mainSceneData.mergeTime
-        // 只要有一个球体的分身时间满足条件，就可以进行合体操作
-        if (!(condition_i || condition_j)) continue
-        // 获取球体间的距离
-        if (!this.balls[i].isOverlapping(this.balls[j])) continue
-
-        if (this.balls[i].mass > this.balls[j].mass) {
-          this.balls[i].mass += this.balls[j].mass
-          this.removeBall(this.balls[j])
-        } else {
-          this.balls[j].mass += this.balls[i].mass
-          this.removeBall(this.balls[i])
-        }
-        if (i === this.balls.length) return
-        this.mergeBalls()
+    const judging = (ball: Ball) => ball.lastSplitTime + mainSceneData.mergeTime < Date.now()
+    // 筛选出可以被合并的球体
+    const balls = this.balls.filter(judging)
+    // 筛选出可以合并的球体
+    const mergeableBalls = balls.filter(ball => !judging(ball))
+    // 优先合并大球
+    mergeableBalls.sort((a, b) => b.mass - a.mass)
+    // 遍历球体进行合并
+    for (let i = 0; i < mergeableBalls.length; i++) {
+      const ball1 = mergeableBalls[i]
+      for (let j = i + 1; j < balls.length; j++) {
+        const ball2 = balls[j]
+        // 获取球体圆心距离
+        const depth = ball1.distanceTo(ball2)
+        // 完全重合时的碰撞距离, 此处 * 0.1 是为了增加碰撞范围
+        const minDepth = Math.abs(ball1.radius - ball2.radius) * 0.1
+        // 判断是否满足合并条件
+        if (minDepth > depth) continue
+        // 合并操作
+        ball1.mass += ball2.mass
+        this.removeBall(ball2)
+        balls.splice(j, 1)
+        j--
       }
-      if (i === this.balls.length) return
     }
   }
 

@@ -6,8 +6,8 @@ import { lcgRandom } from "./lcg_random"
 /** 执行一个函数并且返回一个结果,用来执行匿名函数 */
 const executeFunc = (fun: Function) => fun()
 
-/** 
- * 通过已知的方向、距离和原点，计算出目标点坐标 
+/**
+ * 通过已知的方向、距离和原点，计算出目标点坐标
  * @param direction 已经归一化的方向向量
  * @param distance 在方向上的投影长度
  * @param origin 原点
@@ -51,7 +51,7 @@ function executeCallback(count: number, callback: (index?: number) => void): voi
   }
 }
 
-/** 
+/**
  * 获取多个球的外切矩形的中心点和大小，用于计算摄像机的位置
  * 该方法用于计算多个球体的外切矩形的中心点，其中包含了球体大小对中心点的影响
  */
@@ -91,7 +91,14 @@ const getPolygonCenter: (out: Vec2, balls: Ball[]) => void = executeFunc(functio
   }
 })
 
+/**
+ * 获取平面上两圆之间的中心点
+ */
+function util_getCircleCenter(a: Vec2, b: Vec2): Vec2 {
+  return a.clone().subtract(b).multiplyScalar(0.5).add(a)
+}
+
 export {
   calculateBallRadius, calculateTargetPoint, executeCallback, executeFunc, getCircleRectCenter,
-  getPolygonCenter, lcgRandom, randomColor
+  getPolygonCenter, lcgRandom, randomColor, util_getCircleCenter
 }

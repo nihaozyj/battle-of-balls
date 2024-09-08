@@ -1,13 +1,12 @@
+import { sys } from 'cc'
+
 function loadFromLocalStorage(key: string): any {
-  const data = localStorage.getItem(key)
-  if (data) {
-    return JSON.parse(data)
-  }
-  return null
+  const data = sys.localStorage.getItem(key)
+  return data ? JSON.parse(data) : null
 }
 
 function saveToLocalStorage(key: string, value: any): void {
-  localStorage.setItem(key, JSON.stringify(value))
+  sys.localStorage.setItem(key, JSON.stringify(value))
 }
 
 class DB {

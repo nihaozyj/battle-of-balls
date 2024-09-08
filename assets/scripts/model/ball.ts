@@ -123,11 +123,8 @@ class Ball {
     this._label.fontSize = Math.max(this.radius * 0.08, 22)
     this._label.lineHeight = this._label.fontSize * 1.5
     this._label.string = this.player.name
-
-    if (this.isMovable) {
-      this.updateRadiusAndSpeed()
-      this.updatePosition(dt)
-    }
+    this.updateRadiusAndSpeed()
+    this.updatePosition(dt)
   }
 
   /** 两球之间的距离 */
