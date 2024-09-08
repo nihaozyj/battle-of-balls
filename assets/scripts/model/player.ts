@@ -202,41 +202,46 @@ class Player {
         // 设置两球的速度
         ball1.speed = ball2.speed = depth
         // 分别设置两球的方向，使其朝着和中心点相反的方向移动
-        const dir = center.normalize()
-        ball2.direction.set(dir)
-        ball1.direction.set(dir.multiplyScalar(-1))
+        const dir = center.subtract(ball1.position).normalize()
+        ball1.direction.set(dir)
+        ball2.direction.set(dir.multiplyScalar(-1))
         break
       }
     }
   }
 
-
   /** 对满足合体要求的球体进行合并操作 */
   private _mergeBalls() {
     const now = Date.now()
-    const judging = (ball: Ball) => ball.lastSplitTime + mainSceneData.mergeTime < Date.now()
-    // 筛选出可以被合并的球体
-    const balls = this.balls.filter(judging)
-    // 筛选出可以合并的球体
-    const mergeableBalls = balls.filter(ball => !judging(ball))
-    // 优先合并大球
-    mergeableBalls.sort((a, b) => b.mass - a.mass)
-    // 遍历球体进行合并
-    for (let i = 0; i < mergeableBalls.length; i++) {
-      const ball1 = mergeableBalls[i]
-      for (let j = i + 1; j < balls.length; j++) {
-        const ball2 = balls[j]
+    const judging = (ball: Ball) => (now - ball.lastSplitTime > mainSceneData.mergeTime) && ball.isMovable
+    // 从大到小进行合球
+    this.balls.sort((a, b) => b.mass - a.mass)
+
+    for (let i = 0; i < this.balls.length; i++) {
+      const ball1 = this.balls[i]
+      for (let j = i + 1; j < this.balls.length; j++) {
+        const ball2 = this.balls[j]
+
+        if (!judging(ball1) && !judging(ball2)) continue
         // 获取球体圆心距离
         const depth = ball1.distanceTo(ball2)
         // 完全重合时的碰撞距离, 此处 * 0.1 是为了增加碰撞范围
-        const minDepth = Math.abs(ball1.radius - ball2.radius) * 0.1
+        const minDepth = Math.abs(ball1.radius - ball2.radius) + Math.min(ball1.radius, ball2.radius) * 0.1
         // 判断是否满足合并条件
-        if (minDepth > depth) continue
+        if (minDepth < depth) continue
+        // 更新时间
+        ball1.lastSplitTime = ball2.lastSplitTime = now
         // 合并操作
-        ball1.mass += ball2.mass
-        this.removeBall(ball2)
-        balls.splice(j, 1)
-        j--
+        if (ball1.lastSplitTime < ball2.lastSplitTime) {
+          ball1.mass += ball2.mass
+          this.removeBall(ball2)
+          j--
+        } else {
+          ball2.mass += ball1.mass
+          this.removeBall(ball1)
+          i--
+          break
+        }
       }
     }
   }
