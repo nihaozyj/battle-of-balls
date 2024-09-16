@@ -2,6 +2,7 @@ import { _decorator, Component, director, EditBox, Node, ProgressBar, resources,
 import { mainSceneData } from '../runtime/main_scene_data'
 import { randomName } from '../util/random_name'
 import { db } from '../runtime/db'
+import { PopupsCtrl } from '../../prefabs/scripts/popups_ctrl'
 const { ccclass, property } = _decorator
 
 /**  */
@@ -14,6 +15,15 @@ export class StartUiManager extends Component {
   @property(Node) settingNode: Node = null
   @property(Node) settingBtn: Node = null
   @property(Node) rankingsBtn: Node = null
+  @property(Node) aboutBtn: Node = null
+
+  @property(Node) popSettingNode: Node = null
+  @property(Node) popAboutNode: Node = null
+  @property(Node) popRankingsNode: Node = null
+
+  popByRankingList: PopupsCtrl = null
+  popByAbout: PopupsCtrl = null
+  popBySetting: PopupsCtrl = null
 
   start() {
     this.inputBox.getComponent(EditBox).string = db.playerName = db.playerName || randomName()
@@ -24,9 +34,15 @@ export class StartUiManager extends Component {
 
     db.isPlayBGAudio && mainSceneData.audioSourceBackground.play()
 
+    this.popByRankingList = this.popRankingsNode.getComponent(PopupsCtrl)
+    this.popByAbout = this.popAboutNode.getComponent(PopupsCtrl)
+    this.popBySetting = this.popSettingNode.getComponent(PopupsCtrl)
+
     this.startBtn.once('click', () => this.switchScene(sceneAssetPromise))
-    this.settingBtn.on('click', () => this.settingNode.active = true)
-    this.rankingsBtn.on('click', () => { })
+    this.settingBtn.on('click', () => this.popBySetting.show())
+    this.rankingsBtn.on('click', () => this.popByRankingList.show())
+    this.aboutBtn.on('click', () => this.popByAbout.show())
+
   }
 
   /** 切换场景 */

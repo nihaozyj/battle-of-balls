@@ -123,3 +123,9 @@ const uiCtrl = new UICtrl()
 
 
 export { mainSceneData, uiCtrl }
+
+new Proxy(mainSceneData, {
+  get(target, prop, receiver) {
+
+  }
+})
