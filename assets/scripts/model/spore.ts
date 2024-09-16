@@ -1,6 +1,6 @@
 import { Graphics, Node, UITransform, Vec2, tween, v2, v3 } from "cc"
 import Player from "./player"
-import { sporeParams } from "../component/spore_manager"
+import { sporeParams } from "../scene_main/spore_manager"
 import Ball from "./ball"
 
 const out = v2()

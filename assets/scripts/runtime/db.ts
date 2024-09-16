@@ -43,3 +43,4 @@ const dbProxy = new Proxy(_db, {
 })
 
 export { dbProxy as db }
+

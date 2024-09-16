@@ -1,5 +1,5 @@
 import { AudioClip, AudioSource, Node, SpriteAtlas, SpriteFrame, resources } from 'cc'
-import { UiDieCtrl } from '../component/ui_die_ctrl'
+import { UiDieCtrl } from '../scene_main/ui_die_ctrl'
 import Player from '../model/player'
 import { EVENT_TYPE, eventTarget } from './event_manager'
 

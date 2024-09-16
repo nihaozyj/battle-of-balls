@@ -1,4 +1,4 @@
-import { Color, Graphics, Label, Node, Tween, UITransform, Vec2, tween, v2, v3 } from "cc"
+import { Color, Graphics, Label, Node, RenderTexture, SpriteFrame, Tween, UITransform, Vec2, director, tween, v2, v3 } from "cc"
 import { mainSceneData } from "../runtime/main_scene_data"
 import { calculateBallRadius, calculateTargetPoint } from "../util"
 import { Acanthosphere } from "./acanthosphere"
