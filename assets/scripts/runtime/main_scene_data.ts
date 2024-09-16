@@ -1,7 +1,6 @@
 import { AudioClip, AudioSource, Node, SpriteAtlas, SpriteFrame, resources } from 'cc'
-import { UiDieCtrl } from '../scene_main/ui_die_ctrl'
 import Player from '../model/player'
-import { EVENT_TYPE, eventTarget } from './event_manager'
+import { UiDieCtrl } from '../scene_main/ui_die_ctrl'
 
 class UICtrl {
   /** 死亡界面 */
@@ -49,12 +48,10 @@ class MainData {
   /** 单局游戏时间（秒） */
   readonly gameTime = 60 * 6
 
-
   /** 所有玩家 */
   players: Player[] = []
   /** 当前玩家 */
   player: Player = null
-
 
   /** 背景音乐播放组件 */
   audioSourceBackground: AudioSource = new AudioSource()
@@ -64,7 +61,6 @@ class MainData {
   audioSourceSplit: AudioSource = new AudioSource()
   /** 吐球音效播放组件 */
   audioSourceThrust: AudioSource = new AudioSource()
-
 
   /** 彩豆的图片 */
   caidouFrames: SpriteFrame[] = null
@@ -89,10 +85,12 @@ class MainData {
         this.caidouFrames = frames.getSpriteFrames()
         return resolve(null)
       })),
+
       new Promise((resolve) => resources.load('sprite/ci/spriteFrame', SpriteFrame, (err, frames) => {
         this.shutiaFrames = frames
         return resolve(null)
       })),
+
       new Promise((resolve) => resources.load('audio/背景旋律', AudioClip, (err, audio) => {
         this.audioSourceBackground.clip = audio
         this.audioSourceBackground.playOnAwake = true
@@ -100,14 +98,17 @@ class MainData {
         this.audioSourceBackground.volume = 0.5
         return resolve(null)
       })),
+
       new Promise((resolve) => resources.load('audio/吞噬', AudioClip, (err, audio) => {
         this.audioSourceEffect.clip = audio
         return resolve(null)
       })),
+
       new Promise((resolve) => resources.load('audio/分身', AudioClip, (err, audio) => {
         this.audioSourceSplit.clip = audio
         return resolve(null)
       })),
+
       new Promise((resolve) => resources.load('audio/吐球', AudioClip, (err, audio) => {
         this.audioSourceThrust.clip = audio
         return resolve(null)
@@ -121,11 +122,4 @@ const mainSceneData = new MainData()
 /** UI 控制器 */
 const uiCtrl = new UICtrl()
 
-
 export { mainSceneData, uiCtrl }
-
-new Proxy(mainSceneData, {
-  get(target, prop, receiver) {
-
-  }
-})
