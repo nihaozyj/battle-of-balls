@@ -1,4 +1,4 @@
-import { _decorator, Component, director, EditBox, Node, ProgressBar, resources, SceneAsset } from 'cc'
+import { _decorator, Component, director, EditBox, Label, Node, ProgressBar, resources, SceneAsset } from 'cc'
 import { mainSceneData } from '../runtime/main_scene_data'
 import { randomName } from '../util/random_name'
 import { db } from '../runtime/db'
@@ -40,7 +40,12 @@ export class StartUiManager extends Component {
 
     this.startBtn.once('click', () => this.switchScene(sceneAssetPromise))
     this.settingBtn.on('click', () => this.popBySetting.show())
-    this.rankingsBtn.on('click', () => this.popByRankingList.show())
+    this.rankingsBtn.on('click', () => {
+      const nodes = this.popRankingsNode.getChildByPath('窗口/Content').children
+      const datas = db.scoreboard
+      nodes.forEach((node, index) => node.getComponent(Label).string = datas[index] + '  分')
+      this.popByRankingList.show()
+    })
     this.aboutBtn.on('click', () => this.popByAbout.show())
 
   }

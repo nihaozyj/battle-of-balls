@@ -188,19 +188,30 @@ class Player {
     const now = Date.now()
     // 过滤出距离上一次分身时间超过 mergeTime 的球体
     const balls = this.balls.filter(ball => now - ball.lastSplitTime < mainSceneData.mergeTime && ball.isMovable)
+    const tag = new Array(balls.length).fill(false)
     // 使这些球体在短时间内分开
     for (let i = 0; i < balls.length; i++) {
       const ball1 = balls[i]
       for (let j = i + 1; j < balls.length; j++) {
         const ball2 = balls[j]
         // 获取碰撞深度
-        const depth = (ball1.radius + ball2.radius - ball1.distanceTo(ball2)) / 2
+        const depth = (ball1.radius + ball2.radius - ball1.distanceTo(ball2))
+        // 两方都已经做出了处理
+        if (tag[i] && tag[j]) continue
         // 没有碰撞
         if (depth < 0) continue
         // 获取两球圆心连线的中心点
         center.set(util_getCircleCenter(ball1.position, ball2.position))
-        // 设置两球的速度
-        ball1.speed = ball2.speed = depth
+        // 按照球的体重来计算碰撞后的速度，质量越大速度越快
+        const mass = ball1.mass + ball2.mass
+        if (!tag[i]) {
+          ball1.speed = ball2.mass / mass * depth
+          tag[i] = true
+        }
+        if (![tag[j]]) {
+          ball2.speed = depth - ball1.speed
+          tag[j] = true
+        }
         // 分别设置两球的方向，使其朝着和中心点相反的方向移动
         const dir = center.subtract(ball1.position).normalize()
         ball1.direction.set(dir)
